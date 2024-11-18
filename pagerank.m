@@ -1,19 +1,20 @@
 function [output_vector] = pagerank(input_matrix, damping_factor, jump_vector)
-    %%% This function calculates the page rank of all nodes in an inputted
-    %%% adjacency matrix.
-    %%% VARIABLES
-    %%% input_matrix - the inputted adjacency matrix
-    %%% damping_factor - the chance that any given click is to a hyperlink
-    %%% *within* a page, rather than to another random page
-    %%% jump_vector - the set of probabilities of what page a user will go
-    %%% to when they *jump* ie go to a random page not a hyperlink
-    %%% threshold - the difference in vector magnitude necessary to stop
-    %%% the iteration
-    %%% iteration_matrix - the matrix we're iterating on. it's different
-    %%% from the inputted matrix because we normalize each column so that
-    %%% the values add up to one. if a column is all zeros we fill it with
-    %%% the jump vector because the user's next option *has* to be to a
-    %%% jump
+    % PAGERANK This function calculates the page rank of all nodes in an
+    % inputted adjacency matrix.
+    % VARIABLES
+    % input_matrix - the inputted adjacency matrix
+    % damping_factor - the chance that any given click is to a hyperlink
+    % *within* a page, rather than to another random page
+    % jump_vector - the set of probabilities of what page a user will go
+    % to when they *jump* ie go to a random page not a hyperlink. This
+    % vector should ALWAYS sum to 1
+    % threshold - the difference in vector magnitude necessary to stop
+    % the iteration
+    % iteration_matrix - the matrix we're iterating on. it's different
+    % from the inputted matrix because we normalize each column so that
+    % the values add up to one. if a column is all zeros we fill it with
+    % the jump vector because the user's next option *has* to be to a
+    % jump
     
     % setting up starting variables
     matrix_size = size(input_matrix, 1);
