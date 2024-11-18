@@ -70,4 +70,38 @@ M = np.array([[0, 0, 0, 0],
 v = pagerank(M, 0.85)
 ```
 
+```
+function v = pagerank(M, d)
+    % Calculate the PageRank of each node in the graph.
+    
+    % Get the number of nodes in the graph.
+    N = size(M, 2);
+    
+    % Initialize a vector with all elements equal to 1/N.
+    w = ones(N, 1) / N;
+    
+    % Create the modified adjacency matrix M_hat by multiplying each row by d.
+    M_hat = d * M;
+    
+    % Add the dominant right eigenvalue (1 - d) to w and calculate v.
+    v = (M_hat * w) + (1 - d);
+    
+    % Iterate until the norm of the difference between w and v is less than a small threshold.
+    while(norm(w - v) > 1e-10)
+        % Update w to be equal to v.
+        w = v;
+        
+        % Calculate v using M_hat, w, and (1 - d).
+        v = (M_hat * w) + (1 - d);
+    end
+    
+    % Return the final vector v.
+end
 
+% Example usage:
+M = [0 0 0 0; 
+     0 0 0 0; 
+     1 0.5 0 0; 
+     0 0.5 1 0];
+v = pagerank(M, 0.85);
+```

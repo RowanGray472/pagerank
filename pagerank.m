@@ -1,58 +1,51 @@
-function [output_vector] = pagerank(input_matrix, damping_factor)
-    %%% DOCSTRING
-    %%% Text here
-    % Set default damping factor if not provided
+function [output_vector] = pagerank(input_matrix, damping_factor, jump_vector)
+    %%% This function calculates the page rank of all nodes in an inputted
+    %%% adjacency matrix.
+    %%% VARIABLES
+    %%% input_matrix - the inputted adjacency matrix
+    %%% damping_factor - the chance that any given click is to a hyperlink
+    %%% *within* a page, rather than to another random page
+    %%% jump_vector - the set of probabilities of what page a user will go
+    %%% to when they *jump* ie go to a random page not a hyperlink
+    %%% threshold - the difference in vector magnitude necessary to stop
+    %%% the iteration
+    %%% iteration_matrix - the matrix we're iterating on. it's different
+    %%% from the inputted matrix because we normalize each column so that
+    %%% the values add up to one. if a column is all zeros we fill it with
+    %%% the jump vector because the user's next option *has* to be to a
+    %%% jump
+    
+    % setting up starting variables
+    matrix_size = size(input_matrix, 1);
+    output_vector = ones(matrix_size, 1) / matrix_size;
+    threshold = 1e-6; 
+    difference = Inf;
+    
+    % set default jump vector
+    if nargin < 3
+        jump_vector = ones(matrix_size, 1) / matrix_size; 
+    end
+    % Set default damping factor
     if nargin < 2
         damping_factor = 0.85;
     end
-    matrix_size = size(input_matrix, 1);
-    disp(input_matrix)
-    threshold_vector = ones(1, matrix_size) * 0.01;
-    counter = 1;
-    output_vector = zeros(1, matrix_size);
-    for i = 1:matrix_size
-                for j = 1:matrix_size
-                    if i == j
-                        output_vector(i) = (sum(input_matrix(:, i)) + ...
-                            sum(input_matrix(i, :)))/matrix_size;
-                    end
-                end                       
-    end   
-    difference_output_vector = output_vector - zeros(1, matrix_size);
-    while all(difference_output_vector < threshold_vector, 'all') == 0
-        input_matrix_current = input_matrix^counter;
-        for i = 1:matrix_size
-                for j = 1:matrix_size
-                    if i == j
-                        new_output_vector(i) = (sum(input_matrix_current(:, i)) + ...
-                            sum(input_matrix_current(i, :)))/matrix_size;
-                        difference_output_vector = new_output_vector-output_vector;
-                        output_vector = new_output_vector;
-                    end
-                end                       
-        end        
-        counter = counter + 1;
-    end
-
-
-    % Perform calculation and return the size of the resulting matrix
-    % thing to write now- for each node, return the sum of all the other
-    % nodes divided by the size
-    % for i and j where i = j in matrix. sum all values of i j held
-    % constand and all values of j for i held constant. then divide by
-    % size. return that vector of length size
-    for i = 1:matrix_size
-        for j = 1:matrix_size
-            if i == j
-                output_vector(i) = (sum(input_matrix_next(:, i)) + ...
-                    sum(input_matrix_next(i, :)))/matrix_size;
-            end
+    
+    % initializing the iteration matrix
+    iteration_matrix = zeros(matrix_size);
+    for j = 1:matrix_size
+        column_sum = sum(input_matrix(:, j));
+        if column_sum == 0
+            iteration_matrix(:, j) = jump_vector;
+        else
+            iteration_matrix(:, j) = input_matrix(:, j) / column_sum;
         end
     end
-                
-end
 
-% we're interested to see where the adjacency matrix converges
-% we need a process to see where it converges and a definition of what
-% converging means
-% 0.01
+    % converging
+    while difference > threshold
+        new_output_vector = damping_factor * iteration_matrix * output_vector + ...
+                            (1 - damping_factor) * jump_vector;
+        difference = norm(new_output_vector - output_vector, 1); % gets the magnitude of the vector
+        output_vector = new_output_vector;
+    end
+end
